@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Températures Paris — Google LineChart</title>
+
+  <script src="https://www.gstatic.com/charts/loader.js"></script>
+
+  <style>
+    body { font-family: system-ui, sans-serif; margin: 24px; }
+    #chart { width: 100%; height: 520px; }
+  </style>
+</head>
+
+<body>
+  <h1>Températures horaires — Paris</h1>
+  <div id="chart"></div>
+
+  <script>
+    google.charts.load('current', { packages: ['corechart'] });
+    google.charts.setOnLoadCallback(init);
+
+    async function init() {
+      try {
+        const res = await fetch('/paris');
+        const json = await res.json();
+
+        // Transformation des données JSON pour Google Charts
+        const dataTable = new google.visualization.DataTable();
+        dataTable.addColumn('string', 'Date/Heure');
+        dataTable.addColumn('number', 'Température (°C)');
+
+        json.forEach(item => {
+          dataTable.addRow([item.datetime, item.temperature_c]);
+        });
+
+        const options = {
+          title: 'Température à Paris (7 prochains jours)',
+          curveType: 'function',
+          legend: { position: 'bottom' }
+        };
+
+        const chart = new google.visualization.LineChart(document.getElementById('chart'));
+        chart.draw(dataTable, options);
+      } catch (err) {
+        console.error("Erreur lors de la récupération des données :", err);
+      }
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <title>Histogramme Températures Paris</title>
+  <script src="https://www.gstatic.com/charts/loader.js"></script>
+</head>
+<body>
+  <h1>Prévisions Températures (Histogramme)</h1>
+  <div id="chart_div" style="width: 100%; height: 500px;"></div>
+
+  <script>
+    google.charts.load('current', {packages: ['corechart', 'bar']});
+    google.charts.setOnLoadCallback(drawBasic);
+
+    async function drawBasic() {
+      const res = await fetch('/paris');
+      const json = await res.json();
+      
+      var data = new google.visualization.DataTable();
+      data.addColumn('string', 'Date/Heure');
+      data.addColumn('number', 'Température (°C)');
+
+      // On ne prend que les 10 premières valeurs pour que l'histogramme soit lisible
+      json.slice(0, 10).forEach(item => {
+        data.addRow([item.datetime, item.temperature_c]);
+      });
+
+      var options = {
+        title: 'Températures à Paris (Prochaines heures)',
+        hAxis: { title: 'Heure' },
+        vAxis: { title: 'Degrés Celsius' }
+      };
+
+      var chart = new google.visualization.ColumnChart(document.getElementById('chart_div'));
+      chart.draw(data, options);
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <title>Vitesse du Vent - Marseille</title>
+  <script src="https://www.gstatic.com/charts/loader.js"></script>
+</head>
+<body style="font-family: sans-serif; padding: 20px;">
+  <h1>Météo Marseille : Vitesse du vent (km/h)</h1>
+  <div id="chart_div" style="width: 100%; height: 500px;"></div>
+
+  <script>
+    google.charts.load('current', {'packages':['corechart']});
+    google.charts.setOnLoadCallback(drawChart);
+
+    async function drawChart() {
+      // On appelle notre nouvelle API locale
+      const res = await fetch('/api/marseille');
+      const json = await res.json();
+
+      const dataTable = new google.visualization.DataTable();
+      dataTable.addColumn('string', 'Heure');
+      dataTable.addColumn('number', 'Vitesse (km/h)');
+
+      // On affiche les 24 premières heures
+      json.slice(0, 24).forEach(item => {
+        dataTable.addRow([item.datetime.split('T')[1], item.wind_speed]);
+      });
+
+      const options = {
+        title: 'Prévisions du vent à Marseille (24h)',
+        hAxis: {title: 'Heure',  titleTextStyle: {color: '#333'}},
+        vAxis: {minValue: 0},
+        colors: ['#007bff'],
+        areaOpacity: 0.3
+      };
+
+      const chart = new google.visualization.AreaChart(document.getElementById('chart_div'));
+      chart.draw(dataTable, options);
+    }
+  </script>
+</body>
+</html>
